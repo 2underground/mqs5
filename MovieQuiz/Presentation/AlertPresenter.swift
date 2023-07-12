@@ -1,20 +1,29 @@
 import UIKit
+import Foundation
 
-final class AlertPresenter {
-    
-    weak var delegate: AlertPresenterDelegate?
-    
-    func show(result: AlertModel) {
-        let alert = UIAlertController(title: result.title,
-                                      message: result.message,
-                                      preferredStyle: .alert)
-        
-        let alertAction = UIAlertAction(title: result.buttonText, style: .default) { _ in 
-            result.completion()
+protocol AlertPresenter {
+    func show(alertModel: AlertModel)
+}
+
+final class AlertPresenterImpl: AlertPresenter {
+    private weak var viewController: UIViewController?
+
+    init(viewController: UIViewController? = nil) {
+        self.viewController = viewController
+    }
+
+    func show(alertModel: AlertModel) {
+        let alert = UIAlertController(
+            title: alertModel.title,
+            message: alertModel.message,
+            preferredStyle: .alert
+        )
+
+        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { _ in
+            alertModel.buttonAction()
         }
-        
-        alert.addAction(alertAction)
-        
-        delegate?.didReceiveAlert(alert: alert)
+
+        alert.addAction(action)
+        viewController?.present(alert, animated: true)
     }
 }
